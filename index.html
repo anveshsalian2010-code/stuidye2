@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research Methods Study Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a lab notebook. Graph-paper page, ink text, highlighter for key terms, mono for design notation. */
+:root{
+  --paper:#f3f5fb; --grid:rgba(39,71,216,.07); --card:#ffffff; --ink:#131a33; --muted:#566080; --line:#d3d9ea;
+  --accent:#2747d8; --on-accent:#ffffff; --hi:#ffe14d; --good:#0b7a55; --bad:#c2332c;
+  --s1:#2747d8; --s2:#d9480f; --s3:#0b8a6a; --s4:#8b3fc7;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0d1122; --grid:rgba(143,164,255,.06); --card:#171c33; --ink:#e9ecf8; --muted:#9aa4c4; --line:#2b3357;
+  --accent:#8fa4ff; --on-accent:#0d1122; --hi:#ffe14d; --good:#4fd1a1; --bad:#ff8a80;
+  --s1:#8fa4ff; --s2:#ff9a62; --s3:#4fd1a1; --s4:#c89bff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0d1122; --grid:rgba(143,164,255,.06); --card:#171c33; --ink:#e9ecf8; --muted:#9aa4c4; --line:#2b3357;
+  --accent:#8fa4ff; --on-accent:#0d1122; --hi:#ffe14d; --good:#4fd1a1; --bad:#ff8a80;
+  --s1:#8fa4ff; --s2:#ff9a62; --s3:#4fd1a1; --s4:#c89bff; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font:400 16px/1.6 var(--body)}
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}
+h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
+h1{font-size:clamp(1.9rem,4.5vw,2.9rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.35rem;font-weight:600}
+h4{margin:1.2em 0 .4em;font:600 .82rem var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+p{margin:.6em 0}
+a{color:var(--accent)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--mono)}
+mark{background:var(--hi);color:#131a33;padding:0 .2em;border-radius:2px}
+
+/* sidebar */
+aside{border-right:1px solid var(--line);background:var(--card);padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{font:800 1.15rem/1.15 var(--display);padding:4px 8px 14px}
+.brand small{display:block;font:400 .72rem var(--mono);color:var(--muted);margin-top:4px}
+.nav{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center;text-align:left;width:100%;border:0;background:none;border-radius:8px;padding:9px 8px;text-decoration:none;color:var(--ink)}
+.nav:hover{background:var(--paper)}
+.nav[aria-current="page"]{background:var(--accent);color:var(--on-accent)}
+.nav .no{font:600 .8rem var(--mono);opacity:.75}
+.nav .nm{font-weight:500;font-size:.93rem;line-height:1.25}
+.nav .pg{grid-column:2;height:3px;background:var(--line);border-radius:2px;margin-top:6px;overflow:hidden}
+.nav .pg i{display:block;height:100%;background:var(--good)}
+.nav[aria-current="page"] .pg{background:rgba(255,255,255,.3)} .nav[aria-current="page"] .pg i{background:var(--hi)}
+aside hr{border:0;border-top:1px solid var(--line);width:100%;margin:8px 0}
+
+main{padding:36px clamp(16px,4vw,48px) 80px;max-width:940px;width:100%}
+.eyebrow{font:600 .78rem var(--mono);color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+.lede{color:var(--muted);max-width:62ch;margin:.7em 0 0}
+.src{font:400 .8rem var(--mono);color:var(--muted);margin-top:10px}
+
+/* tabs */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin:26px 0 18px;border-bottom:2px solid var(--line)}
+.tabs button{border:0;background:none;padding:9px 14px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+.panel,.topic,.tile{background:var(--card);border:1px solid var(--line);border-radius:10px}
+.panel{padding:clamp(16px,3vw,26px)}
+.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.bar input[type=search]{flex:1 1 220px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.count{font:400 .82rem var(--mono);color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+/* notes */
+.topic summary{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;list-style:none;font-weight:600}
+.topic summary::-webkit-details-marker{display:none}
+.topic summary::before{content:"+";font:600 1.1rem var(--mono);color:var(--accent);width:1ch}
+.topic[open] summary::before{content:"–"}
+.topic .tt{flex:1}
+.topic.ok .tt::after{content:" ✓";color:var(--good)}
+.chip{font:400 .7rem var(--mono);color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:2px 8px;white-space:nowrap}
+.body{padding:0 18px 16px;max-width:74ch}
+.body ul,.body ol{padding-left:1.3em;margin:.4em 0}
+.body li{margin:.2em 0}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;margin:.6em 0}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{font:600 .74rem var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--paper)}
+.tip{border-left:4px solid var(--hi);background:var(--paper);padding:10px 14px;border-radius:0 8px 8px 0;margin:1em 0;font-size:.95rem}
+.done{display:inline-flex;gap:8px;align-items:center;margin-top:14px;font-weight:500;cursor:pointer}
+.done input{width:18px;height:18px;accent-color:var(--good)}
+
+/* buttons */
+.btn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:9px 16px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+
+/* flashcard */
+.fc{display:flex;flex-direction:column;gap:14px;justify-content:center;width:100%;min-height:230px;text-align:left;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:26px;box-shadow:6px 6px 0 var(--line)}
+.fc.flip{background:var(--hi);color:#131a33;border-color:#131a33;box-shadow:6px 6px 0 #131a33}
+.fc .side{font:600 .74rem var(--mono);text-transform:uppercase;letter-spacing:.08em;opacity:.7}
+.fc .txt{font:600 clamp(1.15rem,2.6vw,1.5rem)/1.3 var(--display)}
+.fc .hint{font:400 .78rem var(--mono);opacity:.6}
+
+/* quiz */
+.qn{font:600 1.2rem/1.35 var(--display);margin:.2em 0 14px;max-width:60ch}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:11px 14px;display:flex;gap:10px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt b{font:600 .85rem var(--mono);color:var(--muted)}
+.opt.right{border-color:var(--good);box-shadow:inset 4px 0 0 var(--good)}
+.opt.wrong{border-color:var(--bad);box-shadow:inset 4px 0 0 var(--bad)}
+.fb{margin-top:14px;padding:12px 14px;border-radius:8px;background:var(--paper);border:1px solid var(--line)}
+.fb strong.g{color:var(--good)} .fb strong.b{color:var(--bad)}
+.meter{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.meter i{display:block;height:100%;background:var(--accent)}
+.big{font:800 3rem/1 var(--display)}
+
+/* home */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:26px}
+.tile{padding:18px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:8px}
+.tile:hover{border-color:var(--accent);box-shadow:5px 5px 0 var(--line)}
+.tile .no{font:600 .8rem var(--mono);color:var(--accent)}
+.tile h3{font-size:1.2rem;font-weight:600}
+.tile p{margin:0;color:var(--muted);font-size:.9rem;flex:1}
+.tile .pg{height:5px;background:var(--line);border-radius:3px;overflow:hidden}
+.tile .pg i{display:block;height:100%;background:var(--good)}
+.tile.exam{background:var(--hi);color:#131a33;border-color:#131a33}
+.tile.exam .no,.tile.exam p{color:#131a33}
+
+/* sampling lab */
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:6px 12px;font-size:.88rem;font-weight:500}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.lab2{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:22px;margin-top:18px;align-items:start}
+.popgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.dot{aspect-ratio:1;border-radius:50%;opacity:.22;background:var(--c)}
+.dot.in{opacity:1;box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
+.k0{--c:var(--s1)}.k1{--c:var(--s2)}.k2{--c:var(--s3)}.k3{--c:var(--s4)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--muted);margin-top:10px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:5px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:10px}
+.stat b{display:block;font:600 1.5rem var(--mono);font-variant-numeric:tabular-nums}
+.stat span{font-size:.76rem;color:var(--muted)}
+.cmp{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:.82rem;margin-top:14px}
+.cmp .tr{height:14px;background:var(--line);border-radius:3px;position:relative;overflow:hidden}
+.cmp .tr i{position:absolute;inset:0 auto 0 0;background:var(--c)}
+.cmp .tr u{position:absolute;top:0;bottom:0;width:2px;background:var(--ink)}
+.cmp .v{font:400 .78rem var(--mono);font-variant-numeric:tabular-nums}
+
+/* designs lab */
+.dlist{display:flex;flex-direction:column;gap:4px}
+.dlist h4{margin:.8em 0 .2em}
+.dlist button{text-align:left;border:1px solid transparent;background:none;border-radius:6px;padding:6px 10px;font-size:.92rem}
+.dlist button:hover{border-color:var(--line)}
+.dlist button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.notation{display:inline-grid;gap:6px;margin:14px 0;font:600 1.15rem var(--mono)}
+.notation div{display:flex;gap:6px}
+.notation span{min-width:2.6em;height:2.4em;display:grid;place-items:center;border:1px solid var(--line);border-radius:6px;background:var(--paper)}
+.notation span:empty{border-style:dashed;opacity:.5}
+.notation .x{background:var(--hi);color:#131a33;border-color:#131a33}
+.notation .r{color:var(--accent)}
+svg{max-width:100%;height:auto;display:block}
+svg text{font:11px var(--mono);fill:var(--muted)}
+
+/* mixed lab */
+.flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.flow .bx{border:1px solid var(--ink);border-radius:8px;padding:10px 12px;font-weight:600;font-size:.9rem;background:var(--card)}
+.flow .par{display:flex;flex-direction:column;gap:6px}
+.flow .ar{font:600 1.2rem var(--mono);color:var(--accent)}
+.need{display:grid;gap:6px}
+.need button{text-align:left;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:10px 14px}
+.need button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 4px 0 0 var(--accent)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+dt{font:600 .74rem var(--mono);text-transform:uppercase;color:var(--muted);padding-top:3px}
+dd{margin:0}
+
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr}
+  aside{position:static;height:auto;flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px 12px;gap:4px;align-items:stretch}
+  .brand{display:none} aside hr{display:none}
+  .nav{width:auto;flex:0 0 auto;grid-template-columns:auto auto;padding:7px 10px}
+  .nav .nm{white-space:nowrap} .nav .pg{display:none}
+  main{padding-top:24px}
+  .lab2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside id="side" aria-label="Units"></aside>
+  <main id="app"></main>
+</div>
+<script src="data1.js"></script>
+<script src="data2.js"></script>
+<script>
+const U=window.UNITS, $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+// Progress is a per-browser convenience only; the site works without it.
+let S={done:{},best:{}};
+try{Object.assign(S,JSON.parse(localStorage.getItem('qrm-hub')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('qrm-hub',JSON.stringify(S))}catch(e){}};
+const pct=u=>Math.round(100*u.topics.filter((_,i)=>S.done[u.id+':'+i]).length/u.topics.length);
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+let mode='notes';
+
+function side(cur){
+  $('#side').innerHTML=`<div class="brand">Research Methods Study Hub<small>Quantitative Research Methods</small></div>
+  <a class="nav" href="#home" ${cur==='home'?'aria-current="page"':''}><span class="no">00</span><span class="nm">Home</span></a>`+
+  U.map(u=>`<a class="nav" href="#${u.id}" ${cur===u.id?'aria-current="page"':''}><span class="no">0${u.n}</span><span class="nm">${u.title}</span><span class="pg"><i style="width:${pct(u)}%"></i></span></a>`).join('')+
+  `<hr><a class="nav" href="#exam" ${cur==='exam'?'aria-current="page"':''}><span class="no">??</span><span class="nm">Exam mode</span></a>`;
+}
+
+function home(){
+  $('#app').innerHTML=`<div class="eyebrow">Quantitative Research Methods · 5 units</div>
+  <h1>Everything on the syllabus, in one place.</h1>
+  <p class="lede">Short notes built from your Unit 1 slides, A.K. Singh, Kothari and Creswell. Each unit has notes, flashcards, a quiz and a hands-on lab. Tick topics off as you go.</p>
+  <div class="tiles">`+U.map(u=>`<a class="tile" href="#${u.id}"><span class="no">UNIT 0${u.n}</span><h3>${u.title}</h3><p>${u.blurb}</p>
+    <span class="count">${u.topics.length} topics · ${u.cards.length} cards · ${u.quiz.length} questions${S.best[u.id]!=null?' · best '+S.best[u.id]+'%':''}</span>
+    <span class="pg"><i style="width:${pct(u)}%"></i></span></a>`).join('')+
+  `<a class="tile exam" href="#exam"><span class="no">EXAM MODE</span><h3>15 random questions</h3><p>Pulled from all five units, no hints. See what actually stuck.</p><span class="count">${S.best.exam!=null?'Best so far: '+S.best.exam+'%':'Not attempted yet'}</span></a></div>`;
+}
+
+function unit(u){
+  const tabs=[['notes','Notes'],['cards','Flashcards'],['quiz','Quiz'],['lab','Lab']];
+  $('#app').innerHTML=`<div class="eyebrow">Unit 0${u.n}</div><h1>${u.title}</h1><p class="lede">${u.blurb}</p><div class="src">Source: ${u.src}</div>
+  <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" data-m="${k}" aria-selected="${mode===k}">${l}</button>`).join('')}</div><div id="pane"></div>`;
+  $$('.tabs button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;unit(u)});
+  const el=$('#pane');
+  if(mode==='notes')notes(u,el);
+  else if(mode==='cards')cards(u,el);
+  else if(mode==='quiz')quiz(el,u.quiz,u.id);
+  else lab(u,el);
+}
+
+function notes(u,el){
+  el.innerHTML=`<div class="bar"><input id="q" type="search" placeholder="Search this unit" aria-label="Search this unit"><span class="count" id="cnt"></span></div><div class="stack">`+
+  u.topics.map((t,i)=>{const k=u.id+':'+i;return `<details class="topic ${S.done[k]?'ok':''}" ${i===0?'open':''}><summary><span class="tt">${t.t}</span><span class="chip">${t.s}</span></summary>
+    <div class="body">${t.h.replace(/<table>/g,'<div class="tw"><table>').replace(/<\/table>/g,'</table></div>')}<label class="done"><input type="checkbox" id="c${i}" data-k="${k}" ${S.done[k]?'checked':''}> Got it, mark as done</label></div></details>`}).join('')+`</div>`;
+  const cnt=()=>$('#cnt').textContent=u.topics.filter((_,i)=>S.done[u.id+':'+i]).length+' of '+u.topics.length+' done';
+  cnt();
+  $$('.done input',el).forEach(c=>c.onchange=()=>{S.done[c.dataset.k]=c.checked;save();c.closest('.topic').classList.toggle('ok',c.checked);cnt();side(u.id)});
+  $('#q').oninput=e=>{const v=e.target.value.trim().toLowerCase();$$('.topic',el).forEach(d=>{const hit=!v||d.textContent.toLowerCase().includes(v);d.hidden=!hit;if(v&&hit)d.open=true})};
+}
+
+function cards(u,el){
+  let d=u.cards,i=0,f=false;
+  const draw=()=>{
+    el.innerHTML=`<button class="fc ${f?'flip':''}" id="fc" aria-live="polite"><span class="side">${f?'Answer':'Question'}</span><span class="txt">${d[i][f?1:0]}</span><span class="hint">Tap to flip</span></button>
+    <div class="row"><button class="btn" id="pv">← Back</button><button class="btn pri" id="nx">Next →</button><button class="btn" id="sh">Shuffle</button><span class="count">${i+1} / ${d.length}</span></div>`;
+    $('#fc').onclick=()=>{f=!f;draw();$('#fc').focus()};
+    $('#pv').onclick=()=>{i=(i-1+d.length)%d.length;f=false;draw()};
+    $('#nx').onclick=()=>{i=(i+1)%d.length;f=false;draw()};
+    $('#sh').onclick=()=>{d=shuffle(d);i=0;f=false;draw()};
+  };draw();
+}
+
+// One quiz engine: unit quizzes, exam mode and the classify labs all use it.
+function quiz(el,qs,key,head=''){
+  let i=0,score=0;
+  const L='ABCDEF';
+  const ask=()=>{
+    const q=qs[i];
+    el.innerHTML=`<div class="panel">${head}<div class="meter"><i style="width:${100*i/qs.length}%"></i></div>
+      <div class="count">Question ${i+1} of ${qs.length}${q.u?' · '+q.u:''}</div><p class="qn">${q.q}</p>
+      <div class="opts">${q.o.map((o,j)=>`<button class="opt" data-j="${j}"><b>${L[j]}</b><span>${o}</span></button>`).join('')}</div><div id="fb"></div></div>`;
+    $$('.opt',el).forEach(b=>b.onclick=()=>{
+      const j=+b.dataset.j,ok=j===q.a; if(ok)score++;
+      $$('.opt',el).forEach((x,k)=>{x.disabled=true;if(k===q.a)x.classList.add('right');else if(k===j)x.classList.add('wrong')});
+      $('#fb').innerHTML=`<div class="fb"><strong class="${ok?'g':'b'}">${ok?'Correct.':'Not quite.'}</strong> ${q.e}</div><div class="row"><button class="btn pri" id="go">${i+1<qs.length?'Next question':'See score'}</button></div>`;
+      $('#go').onclick=()=>{i++;i<qs.length?ask():end()};$('#go').focus();
+    });
+  };
+  const end=()=>{
+    const p=Math.round(100*score/qs.length);
+    if(key){S.best[key]=Math.max(S.best[key]||0,p);save()}
+    el.innerHTML=`<div class="panel">${head}<div class="count">Result</div><div class="big">${score} / ${qs.length}</div>
+      <p>${p>=80?'Solid. This one is exam-ready.':p>=50?'Halfway there. Reread the topics you missed, then retry.':'Go through the notes once more, then come back.'}${key?' Best so far: '+S.best[key]+'%.':''}</p>
+      <div class="row"><button class="btn pri" id="re">Try again</button></div></div>`;
+    $('#re').onclick=()=>{i=0;score=0;qs=shuffle(qs);ask()};
+  };
+  ask();
+}
+
+function exam(){
+  $('#app').innerHTML=`<div class="eyebrow">Exam mode</div><h1>15 questions, all units.</h1><p class="lede">A fresh random set every time.</p><div id="pane" style="margin-top:24px"></div>`;
+  quiz($('#pane'),shuffle(U.flatMap(u=>u.quiz.map(q=>({...q,u:'Unit '+u.n})))).slice(0,15),'exam');
+}
+
+function lab(u,el){
+  const l=u.lab;
+  if(l.type==='classify')quiz(el,shuffle(l.items).map(([q,a,e])=>({q,o:l.cats,a,e})),null,`<h2>${l.title}</h2><p class="lede" style="margin-bottom:16px">${l.intro}</p>`);
+  else ({sampling,designs,mixed})[l.type](el);
+}
+
+/* ---------- Unit 2 lab: sampling simulator ---------- */
+function sampling(el){
+  // Fixed seed so the "campus" is the same on every visit.
+  const rnd=(s=>()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296})(7);
+  const names=['1st years','2nd years','3rd years','Postgrads'],share=[40,30,20,10],base=[52,58,66,74];
+  let st=[];share.forEach((n,k)=>{for(let i=0;i<n;i++)st.push(k)});
+  for(let i=0;i<28;i++){const a=rnd()*100|0,b=rnd()*100|0;[st[a],st[b]]=[st[b],st[a]]} // mostly grouped by row, like real hostels
+  const pop=st.map((k,i)=>({i,k,score:base[k]+Math.round((rnd()-.5)*16)}));
+  const mean=a=>a.reduce((s,p)=>s+p.score,0)/a.length, mu=mean(pop), of=k=>pop.filter(p=>p.k===k), pick=(a,n)=>shuffle(a).slice(0,n);
+  const M={
+    'Simple random':['Probability','Every student has an equal, independent chance.',n=>pick(pop,n)],
+    'Systematic':['Mixed','Random start, then every kth student down the list.',n=>{const k=100/n,s=Math.random()*k;return Array.from({length:n},(_,j)=>pop[Math.floor(s+j*k)])}],
+    'Stratified (proportionate)':['Probability','Random picks inside each year group, in the same ratio as the campus.',n=>share.flatMap((s,k)=>pick(of(k),Math.round(n*s/100)))],
+    'Stratified (disproportionate)':['Probability','Random picks inside each year group, but equal numbers from each.',n=>[0,1,2,3].flatMap(k=>pick(of(k),Math.floor(n/4)+(k<n%4?1:0)))],
+    'Cluster':['Probability','Whole rows (think hostel floors) are picked at random.',n=>{const r=pick([0,1,2,3,4,5,6,7,8,9],n/10);return pop.filter(p=>r.includes(p.i/10|0))}],
+    'Quota':['Non-probability','Year-group quotas are filled with whoever comes first. No random selection.',n=>share.flatMap((s,k)=>of(k).slice(0,Math.round(n*s/100)))],
+    'Accidental':['Non-probability','The first students the researcher bumps into.',n=>pop.slice(0,n)],
+    'Snowball':['Non-probability','One student is found, then friends refer friends.',n=>{const seen=new Set([Math.random()*100|0]),q=[...seen];while(seen.size<n&&q.length){const c=q.shift();shuffle([c-1,c+1,c-10,c+10]).forEach(x=>{if(x>=0&&x<100&&Math.abs(x%10-c%10)<=1&&seen.size<n&&!seen.has(x)){seen.add(x);q.push(x)}})}return [...seen].map(i=>pop[i])}]
+  };
+  let m='Simple random',n=20,errs=[];
+  el.innerHTML=`<div class="panel"><h2>Sampling simulator</h2>
+    <p class="lede">100 students on a campus. Each dot is a student, colour is year group. The true mean test score is <b class="mono">${mu.toFixed(1)}</b>. Pick a method and see how close your sample gets.</p>
+    <h4>Method</h4><div class="pills" id="ms">${Object.keys(M).map(k=>`<button class="pill" data-m="${k}">${k}</button>`).join('')}</div>
+    <h4>Sample size</h4><div class="pills" id="ns">${[10,20,30].map(k=>`<button class="pill" data-n="${k}">n = ${k}</button>`).join('')}</div>
+    <div class="lab2"><div><div class="popgrid" id="pg" role="img" aria-label="Population grid with sampled students highlighted"></div>
+      <div class="legend">${names.map((x,k)=>`<span class="k${k}">${x}</span>`).join('')}</div></div>
+      <div><p id="desc" style="margin-top:0"></p><div class="stats" id="stats"></div><div class="cmp" id="cmp"></div>
+      <div class="row"><button class="btn pri" id="again">Draw again</button><span class="count" id="avg"></span></div></div></div></div>`;
+  const draw=()=>{
+    const s=M[m][2](n),ids=new Set(s.map(p=>p.i)),xb=mean(s),err=xb-mu;errs.push(Math.abs(err));
+    $$('#ms .pill').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));
+    $$('#ns .pill').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.n===n));
+    $('#pg').innerHTML=pop.map(p=>`<i class="dot k${p.k} ${ids.has(p.i)?'in':''}"></i>`).join('');
+    $('#desc').innerHTML=`<span class="chip">${M[m][0]}</span> ${M[m][1]}`;
+    $('#stats').innerHTML=`<div class="stat"><b>${mu.toFixed(1)}</b><span>Population mean (parameter)</span></div><div class="stat"><b>${xb.toFixed(1)}</b><span>Sample mean (statistic)</span></div><div class="stat"><b style="color:var(--${Math.abs(err)<2?'good':'bad'})">${err>0?'+':''}${err.toFixed(1)}</b><span>Sampling error</span></div>`;
+    $('#cmp').innerHTML=names.map((x,k)=>{const sp=100*s.filter(p=>p.k===k).length/s.length;return `<span>${x}</span><span class="tr k${k}"><i style="width:${sp}%"></i><u style="left:${share[k]}%"></u></span><span class="v">${sp.toFixed(0)}% vs ${share[k]}%</span>`}).join('')+`<span></span><span class="count">Bar = share in your sample. Line = true share on campus.</span><span></span>`;
+    $('#avg').textContent=`Average miss over ${errs.length} draw${errs.length>1?'s':''}: ${(errs.reduce((a,b)=>a+b,0)/errs.length).toFixed(1)}`;
+  };
+  $('#ms').onclick=e=>{if(e.target.dataset.m){m=e.target.dataset.m;errs=[];draw()}};
+  $('#ns').onclick=e=>{if(e.target.dataset.n){n=+e.target.dataset.n;errs=[];draw()}};
+  $('#again').onclick=draw; draw();
+}
+
+/* ---------- Unit 3 lab: design explorer ---------- */
+function ssChart(series){
+  const W=560,rh=120,pad=34,H=series.length*rh+10,total=Math.max(...series.map(s=>s.ph.reduce((a,p)=>a+p[1].length,0)));
+  const x=i=>pad+(i+.5)*(W-pad-10)/total,y=(v,r)=>r*rh+rh-22-v*(rh-48)/10;
+  let o=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Single-subject design graph">`;
+  series.forEach((s,r)=>{
+    let i=0;
+    o+=`<line x1="${pad}" y1="${r*rh+rh-22}" x2="${W-10}" y2="${r*rh+rh-22}" stroke="var(--line)"/><line x1="${pad}" y1="${r*rh+18}" x2="${pad}" y2="${r*rh+rh-22}" stroke="var(--line)"/>`;
+    if(s.label)o+=`<text x="${W-12}" y="${r*rh+34}" text-anchor="end">${s.label}</text>`;
+    s.ph.forEach(([nm,pts],pi)=>{
+      if(pi)o+=`<line x1="${x(i-.5)}" y1="${r*rh+14}" x2="${x(i-.5)}" y2="${r*rh+rh-22}" stroke="var(--ink)" stroke-dasharray="4 4"/>`;
+      o+=`<text x="${(x(i)+x(i+pts.length-1))/2}" y="${r*rh+12}" text-anchor="middle" style="font-weight:600;fill:var(--ink)">${nm==='A'?'A baseline':'B treatment'}</text>`;
+      const c=nm==='A'?'var(--muted)':'var(--accent)';
+      o+=`<polyline fill="none" stroke="${c}" stroke-width="2" points="${pts.map((v,j)=>x(i+j)+','+y(v,r)).join(' ')}"/>`+pts.map((v,j)=>`<circle cx="${x(i+j)}" cy="${y(v,r)}" r="3.5" fill="${c}"/>`).join('');
+      i+=pts.length;
+    });
+  });
+  return o+`<text x="${W/2}" y="${H-1}" text-anchor="middle">Sessions →</text><text x="10" y="${H/2}" transform="rotate(-90 10 ${H/2})" text-anchor="middle">Problem behaviour</text></svg>`;
+}
+function designs(el){
+  const A=[8,9,8,9],B=[6,5,3,3],A2=[5,7,8,8],B2=[5,4,2,2];
+  const D=[
+    ['Pre-experimental','One-shot case study',[['X','O']],'One group is treated, then measured once. No pretest and no control group, so there is nothing to compare with.'],
+    ['Pre-experimental','One-group pretest-posttest',[['O₁','X','O₂']],'The O₁ to O₂ change could come from history, maturation, testing or regression instead of X.'],
+    ['Pre-experimental','Static-group comparison',[['X','O₁'],['','O₂']],'A treated group is compared with an untreated one, but the groups were never equated. Selection is the big threat.'],
+    ['True experimental','Posttest-only control group',[['R','X','O₁'],['R','','O₂']],'Randomisation equates the groups. No pretest, so no testing effect.'],
+    ['True experimental','Pretest-posttest control group',[['R','O₁','X','O₂'],['R','O₃','','O₄']],'The classic. Controls most threats to internal validity, though the pretest may sensitise participants.'],
+    ['True experimental','Solomon four-group',[['R','O₁','X','O₂'],['R','O₃','','O₄'],['R','','X','O₅'],['R','','','O₆']],'Combines the two designs above. Comparing pretested and unpretested groups isolates the effect of the pretest. Needs four groups.'],
+    ['Quasi-experimental','Time-series',[['O₁','O₂','O₃','O₄','X','O₅','O₆','O₇','O₈']],'Many observations before and after X. A jump right after X suggests an effect. History is the main threat.'],
+    ['Quasi-experimental','Equivalent time-samples',[['X₁','O','X₀','O','X₁','O','X₀','O']],'One group, treatment switched on (X₁) and off (X₀) repeatedly.'],
+    ['Quasi-experimental','Nonequivalent control group',[['O₁','X','O₂'],['O₃','','O₄']],'Looks like the classic experiment but without R. Intact groups such as two classrooms are used.'],
+    ['Ex post facto','Correlational design',[['O₁','O₂']],'Two variables measured and correlated. O₁ may cause O₂, O₂ may cause O₁, or a third variable may cause both.'],
+    ['Ex post facto','Criterion-group design',[['(X)','O₁'],['','O₂']],'A group that already has the characteristic is compared with one that does not. (X) happened before the study began.'],
+    ['Single-subject','A-B',[{ph:[['A',A],['B',B]]}],'Baseline then treatment. Weakest single-subject design: the change may have another cause.'],
+    ['Single-subject','A-B-A (withdrawal)',[{ph:[['A',A],['B',B],['A',A2]]}],'Treatment is withdrawn. Behaviour drifting back to baseline is the evidence that the treatment worked.'],
+    ['Single-subject','A-B-A-B (reversal)',[{ph:[['A',A],['B',B],['A',A2],['B',B2]]}],'Treatment is brought back. The effect is shown twice and the study ends with the person on treatment.'],
+    ['Single-subject','Multiple baseline',[{label:'Baseline 1 (behaviour, subject or setting)',ph:[['A',[8,9,8]],['B',[6,4,3,2,2,2,2,2,2]]]},{label:'Baseline 2',ph:[['A',[7,8,8,7,8,8]],['B',[5,4,3,2,2,2]]]},{label:'Baseline 3',ph:[['A',[9,8,9,9,8,9,8,9,9]],['B',[6,4,3]]]}],'Treatment starts at staggered times. Each baseline changes only when its own treatment begins, so no withdrawal is needed.']
+  ];
+  let cur=4;
+  const draw=()=>{
+    const [g,n,rows,d]=D[cur];let last='';
+    el.innerHTML=`<div class="panel"><h2>Design explorer</h2><p class="lede">Pick a design to see its notation or graph. <span class="mono">R</span> random assignment, <span class="mono">O</span> observation, <span class="mono">X</span> treatment.</p>
+    <div class="lab2" style="grid-template-columns:minmax(0,230px) minmax(0,1fr)"><div class="dlist">${D.map((x,i)=>(x[0]!==last?(last=x[0],`<h4>${x[0]}</h4>`):'')+`<button data-i="${i}" aria-pressed="${i===cur}">${x[1]}</button>`).join('')}</div>
+    <div><div class="eyebrow">${g}</div><h2>${n}</h2>${rows[0].ph?ssChart(rows):`<div class="tw"><div class="notation">${rows.map(r=>`<div>${r.map(c=>`<span class="${c[0]==='X'||c==='(X)'?'x':c==='R'?'r':''}">${c}</span>`).join('')}</div>`).join('')}</div></div>`}<p>${d}</p>
+    ${rows.length>1&&!rows[0].ph?'<p class="count">Each row is one group. Columns run left to right in time.</p>':''}</div></div></div>`;
+    $$('.dlist button',el).forEach(b=>b.onclick=()=>{cur=+b.dataset.i;draw()});
+  };draw();
+}
+
+/* ---------- Unit 4 lab: mixed methods design picker ---------- */
+function mixed(el){
+  const MM=[
+    ['I want numbers and stories on the same question, then compare them.','Convergent design','QUAN + QUAL',[['QUAN collect + analyse','QUAL collect + analyse'],'Merge results','Interpret'],'Merging','Ask parallel questions in both strands, or the two sets of results will not line up.'],
+    ['My survey gave results I cannot explain.','Explanatory sequential design','QUAN → qual',['QUAN collect + analyse','Pick results to follow up','QUAL collect + analyse','Interpret'],'Connecting, to explain','Follow up the significant or surprising results, with people from the quantitative sample.'],
+    ['Nobody has measured this before. I do not even know the right variables.','Exploratory sequential design','QUAL → quan',['QUAL collect + analyse','Build an instrument or intervention','QUAN test it','Interpret'],'Connecting, to build','Build the new feature from the qualitative themes and test it on a new, larger sample.'],
+    ['I am running an experiment and want to hear how participants experienced it.','Mixed methods experimental design','QUAN (qual)',['qual before','EXPERIMENT (qual during)','qual after','Interpret'],'Embedding','Qualitative data collected during the trial must not interfere with the treatment.'],
+    ['I want to understand a few schools or clinics in depth and compare them.','Mixed methods case study design','QUAN + QUAL → cases',[['QUAN data','QUAL data'],'Build each case','Compare cases'],'Merging within cases','Decide how the cases are selected and what bounds each one.'],
+    ['The community should help shape the research and benefit from it.','Mixed methods participatory-social justice design','Core design inside a framework',['Engage the community','Core design, with participants involved at each step','Action and change'],'Framed by the participatory goal','Needs trust and time with the community. Linked to the transformative worldview.'],
+    ['I am building a programme and need to assess it stage by stage.','Mixed methods evaluation design','Several core designs in sequence',['Needs assessment','Develop the programme','Test it','Evaluate outcomes'],'Each stage feeds the next','Long projects: keep every stage tied to the overall evaluation objective.']
+  ];
+  let cur=0;
+  const draw=()=>{
+    const [,n,no,flow,integ,watch]=MM[cur];
+    el.innerHTML=`<div class="panel"><h2>Which mixed methods design?</h2><p class="lede">Pick the situation closest to yours. The matching design shows up below.</p>
+    <h4>My situation</h4><div class="need">${MM.map((x,i)=>`<button data-i="${i}" aria-pressed="${i===cur}">${x[0]}</button>`).join('')}</div>
+    <h4>Use this</h4><h2>${n}</h2><div class="flow">${flow.map((s,i)=>(i?'<span class="ar">→</span>':'')+(Array.isArray(s)?`<span class="par">${s.map(b=>`<span class="bx">${b}</span>`).join('')}</span>`:`<span class="bx">${s}</span>`)).join('')}</div>
+    <dl><dt>Notation</dt><dd class="mono">${no}</dd><dt>Integration</dt><dd>${integ}</dd><dt>Watch out</dt><dd>${watch}</dd></dl></div>`;
+    $$('.need button',el).forEach(b=>b.onclick=()=>{cur=+b.dataset.i;draw()});
+  };draw();
+}
+
+function route(){
+  const h=(location.hash||'#home').slice(1),u=U.find(x=>x.id===h);
+  side(u?u.id:h==='exam'?'exam':'home');
+  u?unit(u):h==='exam'?exam():home();
+  window.scrollTo(0,0);
+}
+addEventListener('hashchange',route);route();
+
+// Self-check: every quiz answer index must point at a real option.
+console.assert(U.every(u=>u.quiz.every(q=>q.a>=0&&q.a<q.o.length)),'quiz answer index out of range');
+</script>
+</body>
+</html>
