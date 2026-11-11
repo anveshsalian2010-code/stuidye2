@@ -32,6 +32,7 @@ body{margin:0;background:var(--paper);background-image:linear-gradient(var(--gri
 h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
 h1{font-size:clamp(1.9rem,4.5vw,2.9rem);font-weight:800;letter-spacing:-.02em}
 h2{font-size:1.35rem;font-weight:600}
+h4.deep{margin:1.8em 0 .8em;padding:6px 10px;background:var(--ink);color:var(--paper);border-radius:4px;display:inline-block;letter-spacing:.08em}
 h4{margin:1.2em 0 .4em;font:600 .82rem var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 p{margin:.6em 0}
 a{color:var(--accent)}
@@ -197,13 +198,15 @@ dd{margin:0}
 </div>
 <script src="data1.js"></script>
 <script src="data2.js"></script>
+<script src="data3.js"></script>
+<script src="data4.js"></script>
 <script>
 const U=window.UNITS, $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 // Progress is a per-browser convenience only; the site works without it.
 let S={done:{},best:{}};
 try{Object.assign(S,JSON.parse(localStorage.getItem('qrm-hub')||'{}'))}catch(e){}
 const save=()=>{try{localStorage.setItem('qrm-hub',JSON.stringify(S))}catch(e){}};
-const pct=u=>Math.round(100*u.topics.filter((_,i)=>S.done[u.id+':'+i]).length/u.topics.length);
+const pct=u=>Math.round(100*u.topics.filter(t=>S.done[u.id+':'+t.k]).length/u.topics.length);
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 let mode='notes';
 
@@ -217,32 +220,34 @@ function side(cur){
 function home(){
   $('#app').innerHTML=`<div class="eyebrow">Quantitative Research Methods · 5 units</div>
   <h1>Everything on the syllabus, in one place.</h1>
-  <p class="lede">Short notes built from your Unit 1 slides, A.K. Singh, Kothari and Creswell. Each unit has notes, flashcards, a quiz and a hands-on lab. Tick topics off as you go.</p>
+  <p class="lede">Short notes built from your Unit 1 slides, A.K. Singh, Kothari and Creswell. Each unit has full notes, exam-answer outlines, flashcards, a quiz and a hands-on lab. Tick topics off as you go.</p>
   <div class="tiles">`+U.map(u=>`<a class="tile" href="#${u.id}"><span class="no">UNIT 0${u.n}</span><h3>${u.title}</h3><p>${u.blurb}</p>
-    <span class="count">${u.topics.length} topics · ${u.cards.length} cards · ${u.quiz.length} questions${S.best[u.id]!=null?' · best '+S.best[u.id]+'%':''}</span>
+    <span class="count">${u.topics.length} topics · ${u.long.length} exam answers · ${u.cards.length} cards · ${u.quiz.length} questions${S.best[u.id]!=null?' · best '+S.best[u.id]+'%':''}</span>
     <span class="pg"><i style="width:${pct(u)}%"></i></span></a>`).join('')+
   `<a class="tile exam" href="#exam"><span class="no">EXAM MODE</span><h3>15 random questions</h3><p>Pulled from all five units, no hints. See what actually stuck.</p><span class="count">${S.best.exam!=null?'Best so far: '+S.best.exam+'%':'Not attempted yet'}</span></a></div>`;
 }
 
 function unit(u){
-  const tabs=[['notes','Notes'],['cards','Flashcards'],['quiz','Quiz'],['lab','Lab']];
+  const tabs=[['notes','Notes'],['long','Exam answers'],['cards','Flashcards'],['quiz','Quiz'],['lab','Lab']];
   $('#app').innerHTML=`<div class="eyebrow">Unit 0${u.n}</div><h1>${u.title}</h1><p class="lede">${u.blurb}</p><div class="src">Source: ${u.src}</div>
   <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" data-m="${k}" aria-selected="${mode===k}">${l}</button>`).join('')}</div><div id="pane"></div>`;
   $$('.tabs button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;unit(u)});
   const el=$('#pane');
   if(mode==='notes')notes(u,el);
+  else if(mode==='long')el.innerHTML=`<p class="lede" style="margin:0 0 14px">Likely long-answer questions with the points to hit, in order. Fill each point from the notes.</p><div class="stack">`+u.long.map(([q,h])=>`<details class="topic"><summary><span class="tt">${q}</span></summary><div class="body">${h}</div></details>`).join('')+`</div>`;
   else if(mode==='cards')cards(u,el);
   else if(mode==='quiz')quiz(el,u.quiz,u.id);
   else lab(u,el);
 }
 
 function notes(u,el){
-  el.innerHTML=`<div class="bar"><input id="q" type="search" placeholder="Search this unit" aria-label="Search this unit"><span class="count" id="cnt"></span></div><div class="stack">`+
-  u.topics.map((t,i)=>{const k=u.id+':'+i;return `<details class="topic ${S.done[k]?'ok':''}" ${i===0?'open':''}><summary><span class="tt">${t.t}</span><span class="chip">${t.s}</span></summary>
+  el.innerHTML=`<div class="bar"><input id="q" type="search" placeholder="Search this unit" aria-label="Search this unit"><button class="btn" id="all">Open all</button><span class="count" id="cnt"></span></div><div class="stack">`+
+  u.topics.map((t,i)=>{const k=u.id+':'+t.k;return `<details class="topic ${S.done[k]?'ok':''}" ${i===0?'open':''}><summary><span class="tt">${t.t}</span><span class="chip">${t.s}</span></summary>
     <div class="body">${t.h.replace(/<table>/g,'<div class="tw"><table>').replace(/<\/table>/g,'</table></div>')}<label class="done"><input type="checkbox" id="c${i}" data-k="${k}" ${S.done[k]?'checked':''}> Got it, mark as done</label></div></details>`}).join('')+`</div>`;
-  const cnt=()=>$('#cnt').textContent=u.topics.filter((_,i)=>S.done[u.id+':'+i]).length+' of '+u.topics.length+' done';
+  const cnt=()=>$('#cnt').textContent=u.topics.filter(t=>S.done[u.id+':'+t.k]).length+' of '+u.topics.length+' done';
   cnt();
   $$('.done input',el).forEach(c=>c.onchange=()=>{S.done[c.dataset.k]=c.checked;save();c.closest('.topic').classList.toggle('ok',c.checked);cnt();side(u.id)});
+  $('#all').onclick=e=>{const o=e.target.textContent==='Open all';$$('.topic',el).forEach(d=>d.open=o);e.target.textContent=o?'Close all':'Open all'};
   $('#q').oninput=e=>{const v=e.target.value.trim().toLowerCase();$$('.topic',el).forEach(d=>{const hit=!v||d.textContent.toLowerCase().includes(v);d.hidden=!hit;if(v&&hit)d.open=true})};
 }
 
@@ -263,13 +268,13 @@ function quiz(el,qs,key,head=''){
   let i=0,score=0;
   const L='ABCDEF';
   const ask=()=>{
-    const q=qs[i];
+    const q=qs[i],ord=q.fixed?q.o.map((_,j)=>j):shuffle(q.o.map((_,j)=>j)); // shuffled so the right answer has no favourite slot
     el.innerHTML=`<div class="panel">${head}<div class="meter"><i style="width:${100*i/qs.length}%"></i></div>
       <div class="count">Question ${i+1} of ${qs.length}${q.u?' · '+q.u:''}</div><p class="qn">${q.q}</p>
-      <div class="opts">${q.o.map((o,j)=>`<button class="opt" data-j="${j}"><b>${L[j]}</b><span>${o}</span></button>`).join('')}</div><div id="fb"></div></div>`;
+      <div class="opts">${ord.map((j,p)=>`<button class="opt" data-j="${j}"><b>${L[p]}</b><span>${q.o[j]}</span></button>`).join('')}</div><div id="fb"></div></div>`;
     $$('.opt',el).forEach(b=>b.onclick=()=>{
       const j=+b.dataset.j,ok=j===q.a; if(ok)score++;
-      $$('.opt',el).forEach((x,k)=>{x.disabled=true;if(k===q.a)x.classList.add('right');else if(k===j)x.classList.add('wrong')});
+      $$('.opt',el).forEach(x=>{const k=+x.dataset.j;x.disabled=true;if(k===q.a)x.classList.add('right');else if(k===j)x.classList.add('wrong')});
       $('#fb').innerHTML=`<div class="fb"><strong class="${ok?'g':'b'}">${ok?'Correct.':'Not quite.'}</strong> ${q.e}</div><div class="row"><button class="btn pri" id="go">${i+1<qs.length?'Next question':'See score'}</button></div>`;
       $('#go').onclick=()=>{i++;i<qs.length?ask():end()};$('#go').focus();
     });
@@ -292,7 +297,7 @@ function exam(){
 
 function lab(u,el){
   const l=u.lab;
-  if(l.type==='classify')quiz(el,shuffle(l.items).map(([q,a,e])=>({q,o:l.cats,a,e})),null,`<h2>${l.title}</h2><p class="lede" style="margin-bottom:16px">${l.intro}</p>`);
+  if(l.type==='classify')quiz(el,shuffle(l.items).map(([q,a,e])=>({q,o:l.cats,a,e,fixed:true})),null,`<h2>${l.title}</h2><p class="lede" style="margin-bottom:16px">${l.intro}</p>`);
   else ({sampling,designs,mixed})[l.type](el);
 }
 
